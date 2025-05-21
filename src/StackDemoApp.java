@@ -1,3 +1,5 @@
+import java.util.EmptyStackException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
@@ -14,15 +16,14 @@ class StackDemoApp {
     int choice = readIntInRange(1, 2);
         
     if (choice == 1) {
-      demoStringStack();
+      demoStack(String.class);
     } else {
-      demoIntStack();
+      demoStack(Integer.class);
     }
   }
     
-  private static void demoStringStack()
-  {
-    MyStack<String> stack = new MyStack<String>();
+  private static <T> void demoStack(Class<T> type) {
+    MyStack<T> stack = new MyStack<>();
     boolean running = true;
         
     while (running) {
@@ -35,26 +36,38 @@ class StackDemoApp {
             System.out.println("Стек " + (stack.isEmpty() ? "пуст" : "не пуст"));
             break;
           case 2:
-            System.out.print("Введите строку для добавления: ");
-            String str = scanner.nextLine();
-            stack.push(str);
+            System.out.print("Введите значение для добавления: ");
+            T value = readValue(type);
+            stack.push(value);
             System.out.println("Элемент добавлен");
             break;
           case 3:
-            String popped = stack.pop();
-            System.out.println("Извлеченный элемент: " + popped);
+            try {
+              T popped = stack.pop();
+              System.out.println("Извлеченный элемент: " + popped);
+            } catch (EmptyStackException e) {
+              System.out.println("Ошибка: попытка извлечь элемент из пустого стека");
+            }
             break;
           case 4:
-            String peeked = stack.peek();
-            System.out.println("Элемент на вершине: " + peeked);
+            try {
+              T peeked = stack.peek();
+              System.out.println("Элемент на вершине: " + peeked);
+            } catch (EmptyStackException e) {
+              System.out.println("Ошибка: стек пуст");
+            }
             break;
           case 5:
-            stack.swapTopTwo();
-            System.out.println("Верхние элементы поменяны местами");
+            try {
+              stack.swapTopTwo();
+              System.out.println("Верхние элементы поменяны местами");
+            } catch (IllegalStateException e) {
+              System.out.println("Ошибка: недостаточно элементов для обмена");
+            }
             break;
           case 6:
-            System.out.print("Введите строку для удаления: ");
-            String toRemove = scanner.nextLine();
+            System.out.print("Введите значение для удаления: ");
+            T toRemove = readValue(type);
             boolean removed = stack.removeFirstOccurrence(toRemove);
             System.out.println(removed ? "Элемент удален" : "Элемент не найден");
             break;
@@ -65,64 +78,26 @@ class StackDemoApp {
           case 8:
             running = false;
             break;
-        }
-      } catch (Exception e) {
-        System.out.println("Ошибка: " + e.getMessage());
-      }        
+          default:
+            System.out.println("Неизвестная команда. Пожалуйста, выберите действие от 1 до 8.");
+            break;
+          }
+      } catch (InputMismatchException e) {
+        System.out.println("Ошибка: неверный формат ввода");
+        scanner.nextLine();
+      }
       System.out.println();
     }
   }
     
-  private static void demoIntStack() {
-    MyStack<Integer> stack = new MyStack<Integer>();
-    boolean running = true;
-        
-    while (running) {
-      printMenu();
-      int choice = readIntInRange(1, 8);
-            
-      try {
-        switch (choice) {
-          case 1:
-            System.out.println("Стек " + (stack.isEmpty() ? "пуст" : "не пуст"));
-            break;
-          case 2:
-            System.out.print("Введите число для добавления: ");
-            int num = readInt();
-            stack.push(num);
-            System.out.println("Элемент добавлен");
-            break;
-          case 3:
-            int popped = stack.pop();
-            System.out.println("Извлеченный элемент: " + popped);
-            break;
-          case 4:
-            int peeked = stack.peek();
-            System.out.println("Элемент на вершине: " + peeked);
-            break;
-          case 5:
-            stack.swapTopTwo();
-            System.out.println("Верхние элементы поменяны местами");
-            break;
-          case 6:
-            System.out.print("Введите число для удаления: ");
-            int toRemove = readInt();
-            boolean removed = stack.removeFirstOccurrence(toRemove);
-            System.out.println(removed ? "Элемент удален" : "Элемент не найден");
-            break;
-          case 7:
-            System.out.println("Содержимое стека (сверху вниз):");
-            System.out.println(stack);
-            break;
-          case 8:
-            running = false;
-            break;
-        }
-      } catch (Exception e) {
-        System.out.println("Ошибка: " + e.getMessage());
-      }    
-      System.out.println();
+  @SuppressWarnings("unchecked")
+  private static <T> T readValue(Class<T> type) {
+    if (type == String.class) {
+      return (T) scanner.nextLine();
+    } else if (type == Integer.class) {
+      return (T) Integer.valueOf(readInt());
     }
+    throw new IllegalArgumentException("Неподдерживаемый тип");
   }
     
   private static void printMenu() {

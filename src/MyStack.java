@@ -16,19 +16,6 @@ public class MyStack<T> {
   }
     
   /**
-  * Создает пустой стек с указанной начальной емкостью.
-  * @param initialCapacity начальная емкость стека
-  * @throws IllegalArgumentException если начальная емкость отрицательна
-  */
-  public MyStack(int initialCapacity) {
-    if (initialCapacity < 0) {
-      throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
-    }
-    this.elements = new Object[initialCapacity];
-    this.size = 0;
-  }
-    
-  /**
   * Проверяет, пуст ли стек.
   * @return true если стек пуст, false в противном случае
   */
